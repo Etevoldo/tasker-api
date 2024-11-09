@@ -29,4 +29,27 @@ async function register(req, res) {
   });
 };
 
-module.exports = {register};
+async function login(req, res) {
+  const { email, password } = req.body;
+
+  const result = await db.queryUser(email);
+
+  if (result.length !== 1) { // not found
+    return res.status(401).send({message: "E-mail address not found"});
+  }
+  if (!bcrypt.compareSync(password, result[0].password)) {
+    return res.status(403).send({message: "Wrong password!"});
+  }
+
+  const token = jwt.sign({
+    email: email,
+    exp: Math.floor(Date.now() / 1000) + (60) //1 minute from now on
+  }, secret);
+
+  res.send({
+    message: `${email} sucessfull logged in`,
+    token: token
+  });
+}
+
+module.exports = {register, login};
