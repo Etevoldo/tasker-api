@@ -1,4 +1,5 @@
 const db = require('../controller/dbController');
+const jwt = require('jsonwebtoken');
 
 async function verifyRegister(req, res, next) {
   const { username, email, password } = req.body;
@@ -23,10 +24,10 @@ async function verifyLogin(req, res, next) {
 
 async function verifyAuth(req, res, next) {
   const token = req.body.token;
+
   jwt.verify(token, secret, (err, decoded) => {
-    if (err) {
-      return res.status(401).send({ message: "Token invalid!" });
-    }
+    if (err) return res.status(401).send({ message: "Token invalid!" });
+
     if (decoded.exp >= (Date.now() / 1000)) {
       return res.status(401).send({ message: "Token expired!" });
     }
