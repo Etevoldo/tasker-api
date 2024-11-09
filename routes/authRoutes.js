@@ -4,6 +4,6 @@ const authVerify = require('../middleware/authVerify.js');
 
 const router = express.Router();
 
-router.post('/register', authVerify.verifyRegister, controller.signup);
+router.post('/register', authVerify.verifyRegister, controller.register);
 
 module.exports = router;
