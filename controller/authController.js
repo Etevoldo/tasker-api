@@ -19,7 +19,7 @@ async function register(req, res) {
   }
 
   const token = jwt.sign({
-    username: username,
+    email: email,
     exp: Math.floor(Date.now() / 1000) + (60) //1 minute from now on
   }, secret);
 
