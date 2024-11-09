@@ -6,11 +6,11 @@ const connection = {
   database: 'tasker'
 };
 
-async function queryUser(username) {
+async function queryUser(email) {
   const conn = await mariadb.createConnection(connection);
   try {
-    const query = 'SELECT * FROM users WHERE name = ?';
-    const result = await conn.query(query, [username]);
+    const query = 'SELECT * FROM users WHERE email = ?';
+    const result = await conn.query(query, [email]);
     return result;
   } finally {
     conn.end();

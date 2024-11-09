@@ -6,9 +6,9 @@ async function verifyRegister(req, res, next) {
   if (!email) return res.status(400).send({ message: "Missing email" });
   if (!password) return res.status(400).send({ message: "Missing password!" });
 
-  const data = await db.queryUser(username);
+  const data = await db.queryUser(email);
   if (data.length > 0) { //does exist
-    return res.send({message: `${username} already exists`});
+    return res.send({message: `${email} already exists`});
   }
   next();
 }
