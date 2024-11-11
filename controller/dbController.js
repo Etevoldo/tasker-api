@@ -7,10 +7,14 @@ const connection = {
   password: process.env.DB_PASSWORD,
 };
 
-async function queryUser(email) {
+async function queryUser(email, fields) {
   const conn = await mariadb.createConnection(connection);
+
+  let query = 'SELECT * FROM users WHERE email = ?';
+
+  if (fields) query = query.replace('*', fields.join(', '));
+
   try {
-    const query = 'SELECT * FROM users WHERE email = ?';
     const result = await conn.query(query, [email]);
     return result;
   } finally {
