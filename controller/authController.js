@@ -37,7 +37,7 @@ async function login(req, res) {
     return res.status(401).send({message: "E-mail address not found"});
   }
   if (!bcrypt.compareSync(password, result[0].password)) {
-    return res.status(403).send({message: "Wrong password!"});
+    return res.status(401).send({message: "Wrong password!"});
   }
 
   const token = jwt.sign({
