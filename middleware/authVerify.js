@@ -23,17 +23,18 @@ async function verifyLogin(req, res, next) {
 }
 
 async function verifyAuth(req, res, next) {
-  const token = req.body.token;
+  const token = req.body.token; //TODO take from Autorization instead of body
 
-  jwt.verify(token, process.env.SECRET, (err, decoded) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) return res.status(401).send({ message: "Token invalid!" });
 
-    if (decoded.exp >= (Date.now() / 1000)) {
+    if (decoded.exp <= (Date.now() / 1000)) {
       return res.status(401).send({ message: "Token expired!" });
     }
 
+    req.email = decoded.email;
     next();
   });
 }
 
-module.exports = { verifyRegister, verifyLogin };
+module.exports = { verifyRegister, verifyLogin, verifyAuth };
