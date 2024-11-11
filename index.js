@@ -1,14 +1,16 @@
 const logger = require('morgan');
 require('dotenv').config();
-const auth = require('./routes/authRoutes.js');
 const express = require('express');
 const app = express();
+const auth = require('./routes/authRoutes.js');
+const todos = require('./routes/todosRoutes.js');
 
 app.use(express.json());
 app.use(logger('tiny'));
 app.get('/', (req, res) => res.send('hello world') );
 
 app.use('/', auth); //will add register and signin routes
+app.use('/todos', todos); //will add todos crud operations
 
 
 const PORT = process.env.PORT || 8080;
