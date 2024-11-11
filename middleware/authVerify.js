@@ -25,7 +25,7 @@ async function verifyLogin(req, res, next) {
 async function verifyAuth(req, res, next) {
   const token = req.body.token;
 
-  jwt.verify(token, secret, (err, decoded) => {
+  jwt.verify(token, process.env.SECRET, (err, decoded) => {
     if (err) return res.status(401).send({ message: "Token invalid!" });
 
     if (decoded.exp >= (Date.now() / 1000)) {

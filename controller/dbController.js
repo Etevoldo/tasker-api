@@ -1,9 +1,10 @@
 const mariadb = require('mariadb');
 
 const connection = {
-  host: 'localhost',
-  user: 'root',
-  database: 'tasker'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
 };
 
 async function queryUser(email) {

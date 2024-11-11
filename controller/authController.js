@@ -1,7 +1,6 @@
 const db = require('./dbController');
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
-const { secret } = require('../config/auth.js');
 
 async function register(req, res) {
   const { username, email, password } = req.body;
@@ -21,7 +20,7 @@ async function register(req, res) {
   const token = jwt.sign({
     email: email,
     exp: Math.floor(Date.now() / 1000) + (60) //1 minute from now on
-  }, secret);
+  }, process.env.JWT_SECRET);
 
   res.send({
     message: `${username} sucessfull registred`,
@@ -44,7 +43,7 @@ async function login(req, res) {
   const token = jwt.sign({
     email: email,
     exp: Math.floor(Date.now() / 1000) + (60) //1 minute from now on
-  }, secret);
+  }, process.env.JWT_SECRET);
 
   res.send({
     message: `${email} sucessfull logged in`,

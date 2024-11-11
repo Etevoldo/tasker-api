@@ -1,6 +1,7 @@
 const logger = require('morgan');
-const express = require('express');
+require('dotenv').config();
 const auth = require('./routes/authRoutes.js');
+const express = require('express');
 const app = express();
 
 app.use(express.json());
