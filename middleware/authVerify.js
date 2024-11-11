@@ -15,7 +15,7 @@ async function verifyRegister(req, res, next) {
 }
 
 async function verifyLogin(req, res, next) {
-  const { email, password, token } = req.body;
+  const { email, password } = req.body;
   if (!email) return res.status(400).send({ message: "Missing email" });
   if (!password) return res.status(400).send({ message: "Missing password!" });
 
