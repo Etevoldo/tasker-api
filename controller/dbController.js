@@ -37,4 +37,21 @@ async function addUser(data) {
   }
 }
 
-module.exports = { queryUser, addUser };
+async function addTask(task, idUser) {
+  const conn = await mariadb.createConnection(connection);
+  try {
+    const query = `INSERT INTO tasks \
+        (title, description, id_user) \
+        VALUES (?, ?, ?)`;
+    const result =
+        await conn.query(query, [task.title, task.description, idUser]);
+    return result;
+  } catch(err) {
+    console.error(err); // debug
+    return -1;
+  } finally {
+    conn.end();
+  }
+}
+
+module.exports = { queryUser, addUser, addTask };

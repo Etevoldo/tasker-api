@@ -1,11 +1,22 @@
 const db = require('./dbController');
 
 async function addPost(req, res) {
-  const result = await db.queryUser(req.email, ['id']);
-  const id = result[0].id;
+  const idResult = await db.queryUser(req.email, ['id']);
+  const idUser = idResult[0].id;
 
-  res.send({
-    message: `Your post "${req.body.title}" was inserted into id ${id}`
+  const task = {
+    title: req.body.title,
+    description: req.body.description
+  };
+
+  const result = await db.addTask(task, idUser);
+
+  if (result === -1) {
+    return res.status(500).send({message: "Couldn't add post"});
+  }
+
+  res.status(200).send({
+    message: `Inserted task "${task.title}" to your tasklist`
   });
 }
 
