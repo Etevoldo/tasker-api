@@ -25,16 +25,24 @@ async function verifyLogin(req, res, next) {
 async function verifyAuth(req, res, next) {
   const token = req.body.token; //TODO take from Autorization instead of body
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) return res.status(401).send({ message: "Token invalid!" });
-
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (decoded.exp <= (Date.now() / 1000)) {
       return res.status(401).send({ message: "Token expired!" });
     }
 
     req.email = decoded.email;
-    next();
-  });
+  }
+  catch(err) {
+    return res.status(401).send({ message: "Token invalid!" });
+  }
+  next();
+}
+
+async function verifyTaskPerm(req, res, next) {
+  //const { id_req, email } = req.body;
+  console.log("verified task perms");
+  next();
 }
 
 module.exports = { verifyRegister, verifyLogin, verifyAuth };
