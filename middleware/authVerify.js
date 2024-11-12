@@ -34,6 +34,7 @@ async function verifyAuth(req, res, next) {
     req.email = decoded.email;
   }
   catch(err) {
+    console.error(err);
     return res.status(401).send({ message: "Token invalid!" });
   }
   next();
@@ -45,4 +46,4 @@ async function verifyTaskPerm(req, res, next) {
   next();
 }
 
-module.exports = { verifyRegister, verifyLogin, verifyAuth };
+module.exports = { verifyRegister, verifyLogin, verifyAuth, verifyTaskPerm };
