@@ -19,7 +19,7 @@ async function register(req, res) {
 
   const token = jwt.sign({
     email: email,
-    exp: Math.floor(Date.now() / 1000) + (60) //1 minute from now on
+    exp: Math.floor(Date.now() / 1000) + (60 * 60) //1 hour from now on
   }, process.env.JWT_SECRET);
 
   res.send({
@@ -42,7 +42,7 @@ async function login(req, res) {
 
   const token = jwt.sign({
     email: email,
-    exp: Math.floor(Date.now() / 1000) + (60) //1 minute from now on
+    exp: Math.floor(Date.now() / 1000) + (60 * 60) //1 hour from now on
   }, process.env.JWT_SECRET);
 
   res.send({
