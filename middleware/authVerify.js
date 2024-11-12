@@ -41,8 +41,15 @@ async function verifyAuth(req, res, next) {
 }
 
 async function verifyTaskPerm(req, res, next) {
-  //const { id_req, email } = req.body;
-  console.log("verified task perms");
+  const id_req = req.params.id;
+
+  const task = await db.queryTask(id_req, ['id_user']);
+  const user = await db.queryUser(req.email, ['id']);
+  if (task[0].id_user !== user[0].id) {
+    return res.status(403).send({message: "Forbidden!"});
+  }
+
+  console.log("verified task perms"); // debug
   next();
 }
 

@@ -53,5 +53,19 @@ async function addTask(task, idUser) {
     conn.end();
   }
 }
+async function queryTask(id_task, fields) {
+  const conn = await mariadb.createConnection(connection);
 
-module.exports = { queryUser, addUser, addTask };
+  let query = 'SELECT * FROM tasks WHERE id = ?';
+
+  if (fields) query = query.replace('*', fields.join(', '));
+
+  try {
+    const result = await conn.query(query, [id_task]);
+    return result;
+  } finally {
+    conn.end();
+  }
+}
+
+module.exports = { queryUser, addUser, addTask, queryTask };
