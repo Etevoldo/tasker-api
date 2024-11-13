@@ -49,7 +49,6 @@ async function verifyTaskPerm(req, res, next) {
     return res.status(403).send({message: "Forbidden!"});
   }
   req.idUser = task[0].id_user;
-  console.log("verified task perms"); // debug
   next();
 }
 

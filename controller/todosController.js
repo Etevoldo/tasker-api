@@ -19,24 +19,30 @@ async function addPost(req, res) {
     return res.status(500).send({message: "Couldn't add task"});
   }
 
-  res.status(200).send({
-    message: `Inserted task "${task.title}" to your tasklist`
-  });
-  //TODO answer with the new task
+  // `result.insertId` returns bigInt and json parser hates it,
+  // converting into a string to fix it
+  res.status(200).send({ id: result.insertId.toString(), ...task });
 }
 
 async function updatePost(req, res) {
-  if (!isRightFormat(req.body)) { 
+
+  const task = {
+    title: req.body.title,
+    description: req.body.description
+  };
+
+  if (!isRightFormat(task)) {
     return res.status(400).send({message : "Body in a wrong format!"});
   }
-  const result = await db.modifyTask(req.body, req.params.id ,req.idUser);
+
+  const result = await db.modifyTask(task, req.params.id ,req.idUser);
 
   if (result === -1) {
     return res.status(500).send({message: "Couldn't modify task"});
   }
 
-  res.send({message: `New task ${req.body} updated!`});
-  //TODO answer with the updated task
+  // could query for the just inserted post, but it would be a waste
+  res.status(200).send({ id: req.params.id.toString(), ...task });
 }
 
 function isRightFormat(body) {

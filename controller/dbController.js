@@ -41,10 +41,10 @@ async function addTask(task, idUser) {
   const conn = await mariadb.createConnection(connection);
   try {
     const query = `INSERT INTO tasks \
-        (title, description, id_user) \
-        VALUES (?, ?, ?)`;
+        (title, description, id_user) VALUES (?, ?, ?)`;
     const result =
         await conn.query(query, [task.title, task.description, idUser]);
+
     return result;
   } catch(err) {
     console.error(err); // debug
@@ -76,8 +76,6 @@ async function modifyTask(task, idTask ,idUser) {
         SET title = ?, description = ? WHERE id_user = ? AND id = ?`;
     const result =
       await conn.query(query, [task.title, task.description, idUser, idTask]);
-
-    console.log(result); // debug
 
     return result;
   } catch(err) {
