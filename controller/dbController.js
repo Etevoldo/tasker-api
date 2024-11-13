@@ -40,8 +40,13 @@ async function addUser(data) {
 async function addTask(task, idUser) {
   const conn = await mariadb.createConnection(connection);
   try {
-    const query = `INSERT INTO tasks \
-        (title, description, id_user) VALUES (?, ?, ?)`;
+    const query = {
+      sql: `INSERT INTO tasks \
+          (title, description, id_user) \
+          VALUES (?, ?, ?)`,
+      insertIdAsNumber: true
+    };
+
     const result =
         await conn.query(query, [task.title, task.description, idUser]);
 

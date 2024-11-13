@@ -19,9 +19,7 @@ async function addTask(req, res) {
     return res.status(500).send({message: "Couldn't add task"});
   }
 
-  // `result.insertId` returns bigInt and json parser hates it,
-  // converting into a string to fix it
-  res.status(200).send({ id: result.insertId.toString(), ...task });
+  res.status(200).send({ id: result.insertId, ...task });
 }
 
 async function updateTask(req, res) {
@@ -42,7 +40,7 @@ async function updateTask(req, res) {
   }
 
   // could query for the just inserted Task, but it would be a waste
-  res.status(200).send({ id: req.params.id.toString(), ...task });
+  res.status(200).send({ id: parseInt(req.params.id), ...task });
 }
 
 function isRightFormat(body) {
