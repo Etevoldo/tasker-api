@@ -1,6 +1,6 @@
 const db = require('./dbController');
 
-async function addPost(req, res) {
+async function addTask(req, res) {
   if (!isRightFormat(req.body)) { 
     res.status(400).send({message : "Body in a wrong format!"});
   }
@@ -24,7 +24,7 @@ async function addPost(req, res) {
   res.status(200).send({ id: result.insertId.toString(), ...task });
 }
 
-async function updatePost(req, res) {
+async function updateTask(req, res) {
 
   const task = {
     title: req.body.title,
@@ -41,7 +41,7 @@ async function updatePost(req, res) {
     return res.status(500).send({message: "Couldn't modify task"});
   }
 
-  // could query for the just inserted post, but it would be a waste
+  // could query for the just inserted Task, but it would be a waste
   res.status(200).send({ id: req.params.id.toString(), ...task });
 }
 
@@ -56,4 +56,4 @@ function isRightFormat(body) {
   return true;
 }
 
-module.exports = { addPost, updatePost };
+module.exports = { addTask, updateTask };

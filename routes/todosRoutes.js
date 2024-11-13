@@ -4,12 +4,12 @@ const controller = require('../controller/todosController.js');
 
 const router = express.Router();
 
-router.post('/', verifyAuth, controller.addPost);
+router.post('/', verifyAuth, controller.addTask);
 
 router.route('/:id')
   .get(verifyAuth, (req, res) => res.send('get ok'))
-  .put(verifyAuth, verifyTaskPerm, controller.updatePost)
-  .delete((req, res) => res.send('delete ok'));
+  .put(verifyAuth, verifyTaskPerm, controller.updateTask)
+  .delete(verifyAuth, verifyTaskPerm, (req, res) => res.send('delete ok'));
 
 module.exports = router;
 
