@@ -75,6 +75,22 @@ async function queryTask(id_task, fields) {
   }
 }
 
+async function queryTasksByUserId(userId, fields) {
+  const conn = await mariadb.createConnection(connection);
+
+  let query = `SELECT * FROM tasks WHERE id_user = ?`;
+
+  if (fields) query = query.replace('*', fields.join(', '));
+
+  try {
+    const result = await conn.query(query, [userId]);
+
+    return result;
+  } finally {
+    conn.end();
+  }
+}
+
 async function modifyTask(task, idTask ,idUser) {
   const conn = await mariadb.createConnection(connection);
   try {
@@ -109,5 +125,6 @@ async function deleteTask(idTask) {
 }
 
 module.exports = {
-  queryUser, addUser, addTask, queryTask, modifyTask, deleteTask
+  queryUser, addUser, addTask, queryTask, 
+  modifyTask, deleteTask, queryTasksByUserId
 };

@@ -53,6 +53,37 @@ async function deleteTask(req, res) {
   res.status(204).send();
 }
 
+async function getTasks(req, res) {
+  const idResult = await db.queryUser(req.email, ['id']);
+  const userId = idResult[0].id;
+  const tasks =
+      await db.queryTasksByUserId(userId, ['id', 'title', 'description']);
+
+  const sParams = new URLSearchParams(req.url.split('?')[1]);
+  const page  = parseInt(sParams.get('page'));
+  const limit = parseInt(sParams.get('limit'));
+
+  res.status(200).send(paginate(tasks, page, limit));
+}
+
+function paginate(data, page, limit) {
+  const formatedPage = {
+    data: [],
+    page: page,
+    limit: limit,
+    total: data.length
+  };
+
+  const bottomStart = (page - 1) * limit;
+  const upperLimit = bottomStart + limit;
+
+  for (let i = bottomStart; (i < upperLimit) && data[i]; i++) {
+    formatedPage.data.push(data[i]);
+  }
+
+  return formatedPage;
+}
+
 function isRightFormat(body) {
   //check if is right types
   if ((typeof body.title) !== 'string') return false;
@@ -64,4 +95,4 @@ function isRightFormat(body) {
   return true;
 }
 
-module.exports = { addTask, updateTask, deleteTask };
+module.exports = { addTask, updateTask, deleteTask, getTasks };
