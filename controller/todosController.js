@@ -43,6 +43,16 @@ async function updateTask(req, res) {
   res.status(200).send({ id: parseInt(req.params.id), ...task });
 }
 
+async function deleteTask(req, res) {
+  const result = await db.deleteTask(req.params.id);
+
+  if (result === -1) {
+    return res.status(500).send({message: "Couldn't delete task"});
+  }
+
+  res.status(204).send();
+}
+
 function isRightFormat(body) {
   //check if is right types
   if ((typeof body.title) !== 'string') return false;
@@ -54,4 +64,4 @@ function isRightFormat(body) {
   return true;
 }
 
-module.exports = { addTask, updateTask };
+module.exports = { addTask, updateTask, deleteTask };

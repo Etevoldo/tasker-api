@@ -9,7 +9,6 @@ router.post('/', verifyAuth, controller.addTask);
 router.route('/:id')
   .get(verifyAuth, (req, res) => res.send('get ok'))
   .put(verifyAuth, verifyTaskPerm, controller.updateTask)
-  .delete(verifyAuth, verifyTaskPerm, (req, res) => res.send('delete ok'));
+  .delete(verifyAuth, verifyTaskPerm, controller.deleteTask);
 
 module.exports = router;
-

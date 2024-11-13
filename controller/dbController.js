@@ -68,6 +68,7 @@ async function queryTask(id_task, fields) {
 
   try {
     const result = await conn.query(query, [id_task]);
+
     return result;
   } finally {
     conn.end();
@@ -91,4 +92,22 @@ async function modifyTask(task, idTask ,idUser) {
   }
 }
 
-module.exports = { queryUser, addUser, addTask, queryTask, modifyTask };
+async function deleteTask(idTask) {
+  const conn = await mariadb.createConnection(connection);
+  try {
+    const query = `DELETE FROM tasks WHERE id = ?`;
+
+    const result = await conn.query(query, [idTask]);
+
+    return result;
+  } catch(err) {
+    console.error(err); // debug
+    return -1;
+  } finally {
+    conn.end();
+  }
+}
+
+module.exports = {
+  queryUser, addUser, addTask, queryTask, modifyTask, deleteTask
+};
