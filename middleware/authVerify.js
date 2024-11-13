@@ -44,6 +44,8 @@ async function verifyTaskPerm(req, res, next) {
   const id_req = req.params.id;
 
   const task = await db.queryTask(id_req, ['id_user']);
+  if (task.length === 0) return res.status(404).send(); // task doesn't exist
+
   const user = await db.queryUser(req.email, ['id']);
   if (task[0].id_user !== user[0].id) {
     return res.status(403).send({message: "Forbidden!"});
