@@ -53,6 +53,7 @@ async function addTask(task, idUser) {
     conn.end();
   }
 }
+
 async function queryTask(id_task, fields) {
   const conn = await mariadb.createConnection(connection);
 
@@ -68,4 +69,23 @@ async function queryTask(id_task, fields) {
   }
 }
 
-module.exports = { queryUser, addUser, addTask, queryTask };
+async function modifyTask(task, idTask ,idUser) {
+  const conn = await mariadb.createConnection(connection);
+  try {
+    const query = `UPDATE tasks \
+        SET title = ?, description = ? WHERE id_user = ? AND id = ?`;
+    const result =
+      await conn.query(query, [task.title, task.description, idUser, idTask]);
+
+    console.log(result); // debug
+
+    return result;
+  } catch(err) {
+    console.error(err); // debug
+    return -1;
+  } finally {
+    conn.end();
+  }
+}
+
+module.exports = { queryUser, addUser, addTask, queryTask, modifyTask };
