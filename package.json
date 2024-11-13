@@ -8,8 +8,8 @@
     "test": "nodemon -x \"npm run lint && npm start\""
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Etevoldo",
+  "license": "MIT",
   "description": "",
   "devDependencies": {
     "eslint": "^9.14.0",
