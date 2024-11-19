@@ -2,9 +2,11 @@ const logger = require('morgan');
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const getLimiter = require('./middleware/rate-limiter.js');
 const auth = require('./routes/authRoutes.js');
 const todos = require('./routes/todosRoutes.js');
 
+app.use(getLimiter());
 app.use(express.json());
 app.use(logger('tiny'));
 app.get('/', (req, res) => res.send('hello world') );
