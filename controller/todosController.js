@@ -1,3 +1,5 @@
+'use strict';
+
 const db = require('./dbController');
 
 async function addTask(req, res) {

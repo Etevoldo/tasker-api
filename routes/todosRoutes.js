@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express');
 const { verifyAuth, verifyTaskPerm } = require('../middleware/authVerify.js');
 const controller = require('../controller/todosController.js');

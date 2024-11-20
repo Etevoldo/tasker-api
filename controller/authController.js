@@ -1,3 +1,5 @@
+'use strict';
+
 const db = require('./dbController');
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');

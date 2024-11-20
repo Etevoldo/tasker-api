@@ -1,3 +1,5 @@
+'use strict';
+
 const db = require('../controller/dbController');
 const jwt = require('jsonwebtoken');
 

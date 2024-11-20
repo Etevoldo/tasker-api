@@ -1,3 +1,5 @@
+'use strict';
+
 const mariadb = require('mariadb');
 
 const connection = {
