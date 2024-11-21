@@ -8,7 +8,7 @@ const client = new RedisClient();
 async function createRefreshToken(user) {
   try {
     const key = uuid.v4();
-    const token = await client.hset(
+    await client.hset(
       key,
       {
         'user': user,
