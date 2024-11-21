@@ -58,4 +58,31 @@ async function login(req, res) {
   });
 }
 
-module.exports = {register, login};
+async function refreshToken(req, res) {
+  const refreshToken = req.body.refreshToken;
+  const { getToken, delToken } = rToken;
+
+  if (!refreshToken) {
+    return res.status(403).send({message: 'Refresh Token Required!'});
+  }
+  let refreshTokenContents = await getToken(refreshToken);
+  if (!refreshTokenContents.user) { //if rtoken doesn't exists in db
+    return res.status(403).send({message: 'Token not in database!'});
+  }
+  if (refreshTokenContents.expiry <= (Date.now() / 1000)) {
+    await delToken(refreshToken);
+    return res.status(403).send({message: 'Token expired, login again'});
+  }
+
+  const newAcessToken = jwt.sign({
+    email: refreshTokenContents.user,
+    exp: Math.floor(Date.now() / 1000) + (60) //1 minute from now on
+  }, process.env.JWT_SECRET);
+
+  res.status(200).send({
+    acessToken: newAcessToken,
+    refreshToken: refreshToken
+  });
+}
+
+module.exports = {register, login, refreshToken};
