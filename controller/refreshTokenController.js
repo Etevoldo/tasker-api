@@ -29,4 +29,12 @@ async function getToken(uuid) {
   }
 }
 
-module.exports = {createRefreshToken, getToken};
+async function delToken(uuid) {
+  try {
+    return await client.hdel(uuid, ['user', 'expiry']);
+  } catch(err) {
+    console.error(err);
+  }
+}
+
+module.exports = {createRefreshToken, getToken, delToken};
