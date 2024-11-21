@@ -25,18 +25,18 @@ async function verifyLogin(req, res, next) {
 }
 
 async function verifyAuth(req, res, next) {
-  const token = req.body.token; //TODO take from Autorization instead of body
-
+  const token = req.body.token;
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (decoded.exp <= (Date.now() / 1000)) {
-      return res.status(401).send({ message: "Token expired!" });
-    }
-
     req.email = decoded.email;
   }
   catch(err) {
     console.error(err);
+    if (err.name === 'TokenExpiredError') {
+      return res.status(401).send({
+        message: "Access token expired! refresh it in /refreshToken"
+      });
+    }
     return res.status(401).send({ message: "Token invalid!" });
   }
   next();
