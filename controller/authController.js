@@ -1,7 +1,7 @@
 'use strict';
 
 const db = require('./dbController.js');
-const rToken = require('./refreshTokenController.js');
+const rTokenDB = require('./refreshTokenController.js');
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 
@@ -24,7 +24,7 @@ async function register(req, res) {
     email: email,
     exp: Math.floor(Date.now() / 1000) + (60 * 60) //1 hour from now on
   }, process.env.JWT_SECRET);
-  const refreshToken = await rToken.createRefreshToken(email);
+  const refreshToken = await rTokenDB.createToken(email);
 
   res.send({
     message: `${username} sucessfull registred`,
@@ -49,7 +49,7 @@ async function login(req, res) {
     email: email,
     exp: Math.floor(Date.now() / 1000) + (60) //1 minute from now on
   }, process.env.JWT_SECRET);
-  const refreshToken = await rToken.createRefreshToken(email);
+  const refreshToken = await rTokenDB.createToken(email);
 
   res.send({
     message: `${email} sucessfull logged in`,
@@ -60,28 +60,44 @@ async function login(req, res) {
 
 async function refreshToken(req, res) {
   const refreshToken = req.body.refreshToken;
-  const { getToken, delToken } = rToken;
 
   if (!refreshToken) {
     return res.status(403).send({message: 'Refresh Token Required!'});
   }
-  let refreshTokenContents = await getToken(refreshToken);
-  if (!refreshTokenContents.user) { //if rtoken doesn't exists in db
+
+  //get token info in de db
+  let refreshTokenContents = (await rTokenDB.getToken(refreshToken));
+  if (!refreshTokenContents) { //if rtoken doesn't exists in db
     return res.status(403).send({message: 'Token not in database!'});
   }
-  if (refreshTokenContents.expiry <= (Date.now() / 1000)) {
-    await delToken(refreshToken);
+
+  //decode token and get exp date
+  const decodedToken = jwt.verify(
+    refreshToken,
+    process.env.JWT_REFRESH_SECRET,
+    { ignoreExpiration: true }
+  );
+
+  if (decodedToken.exp <= (Date.now() / 1000)) {
+    //TODO: delete all user tokens in case of expiration
+    await rTokenDB.delToken(refreshToken);
     return res.status(403).send({message: 'Token expired, login again'});
   }
+  //TODO: add reuse detection with a delete all tokens (of a user) function
 
+  //if everything is ok
   const newAcessToken = jwt.sign({
     email: refreshTokenContents.user,
-    exp: Math.floor(Date.now() / 1000) + (60) //1 minute from now on
+    exp: Math.floor(Date.now() / 1000) + (60) //1 minute
   }, process.env.JWT_SECRET);
+
+  const newRefreshToken = await rTokenDB.createToken(refreshTokenContents.user);
+  //TODO: instead of deleting, mark as used for the automatic reuse detection
+  await rTokenDB.delToken(refreshToken);
 
   res.status(200).send({
     acessToken: newAcessToken,
-    refreshToken: refreshToken
+    refreshToken: newRefreshToken
   });
 }
 
