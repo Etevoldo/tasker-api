@@ -79,11 +79,13 @@ async function refreshToken(req, res) {
   );
 
   if (decodedToken.exp <= (Date.now() / 1000)) {
-    //TODO: delete all user tokens in case of expiration
-    await rTokenDB.delToken(refreshToken);
+    await rTokenDB.delFamily(refreshTokenContents.user);
     return res.status(403).send({message: 'Token expired, login again'});
   }
-  //TODO: add reuse detection with a delete all tokens (of a user) function
+  if (refreshTokenContents.used) {
+    await rTokenDB.delFamily(refreshTokenContents.user);
+    return res.status(403).send({message: 'Token reused, login again'});
+  }
 
   //if everything is ok
   const newAcessToken = jwt.sign({
@@ -92,11 +94,10 @@ async function refreshToken(req, res) {
   }, process.env.JWT_SECRET);
 
   const newRefreshToken = await rTokenDB.createToken(refreshTokenContents.user);
-  //TODO: instead of deleting, mark as used for the automatic reuse detection
-  await rTokenDB.delToken(refreshToken);
+  await rTokenDB.markUsed(refreshToken);
 
   res.status(200).send({
-    acessToken: newAcessToken,
+    token: newAcessToken,
     refreshToken: newRefreshToken
   });
 }

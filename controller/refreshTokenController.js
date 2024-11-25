@@ -44,11 +44,24 @@ async function getToken(rToken) {
   }
 }
 
-async function delToken(rToken) {
+//automatic reusedection
+async function delFamily(user) {
   const conn = await mariadb.createConnection(connection);
   try {
     const query =
-      'DELETE FROM refreshTokens WHERE token = ?';
+      'DELETE FROM refreshTokens WHERE user = ?';
+
+    await conn.query(query, [user]);
+  } catch(err) {
+    console.error(err);
+  }
+}
+
+async function markUsed(rToken) {
+  const conn = await mariadb.createConnection(connection);
+  try {
+    const query =
+      'UPDATE refreshTokens SET used = true WHERE token = ?';
 
     await conn.query(query, [rToken]);
   } catch(err) {
@@ -56,4 +69,4 @@ async function delToken(rToken) {
   }
 }
 //TODO implement mark used function
-module.exports = {createToken, getToken, delToken};
+module.exports = {createToken, getToken, delToken, delFamily, markUsed};
