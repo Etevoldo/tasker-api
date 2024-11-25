@@ -38,7 +38,7 @@ Bonus features:
 - [x] Refresh Token mechanism
 - [x] Automatic Refresh token reuse detection
 - [x] Rate limiting
-- [] unit testing
-- [] task filtering and sorting
+- [ ] unit testing
+- [ ] task filtering and sorting
 
 Complete!
