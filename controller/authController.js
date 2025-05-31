@@ -9,9 +9,9 @@ async function register(req, res) {
   const { username, email, password } = req.body;
 
   const data = {
-      username: username,
-      email: email,
-      password: await bcrypt.hash(password, 8)
+    username: username,
+    email: email,
+    password: await bcrypt.hash(password, 8)
   };
 
   const result = await db.addUser(data);

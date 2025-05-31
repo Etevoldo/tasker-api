@@ -69,4 +69,4 @@ async function markUsed(rToken) {
   }
 }
 //TODO implement mark used function
-module.exports = {createToken, getToken, delToken, delFamily, markUsed};
+module.exports = {createToken, getToken, delFamily, markUsed};
