@@ -1,7 +1,7 @@
 'use strict';
 const { DataTypes, Model } = require('sequelize');
 
-module.exports = (sequelize, User) => {
+module.exports = (sequelize) => {
   class Task extends Model {}
   Task.init(
     {
