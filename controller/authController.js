@@ -1,6 +1,8 @@
 'use strict';
 
-const db = require('./dbController.js');
+const db = require('../models');
+const User = db.User;
+const RefreshToken = db.RefreshToken;
 const rTokenDB = require('./refreshTokenController.js');
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
@@ -8,15 +10,16 @@ const jwt = require('jsonwebtoken');
 async function register(req, res) {
   const { username, email, password } = req.body;
 
-  const data = {
+  const userData = {
     username: username,
     email: email,
     password: await bcrypt.hash(password, 8)
   };
 
-  const result = await db.addUser(data);
-
-  if (result === -1) {
+  try {
+    await User.create(userData);
+  } catch (error) {
+    console.error(error)
     return res.status(500).send({message: "couldn't register!"});
   }
 
@@ -24,7 +27,21 @@ async function register(req, res) {
     email: email,
     exp: Math.floor(Date.now() / 1000) + (60 * 60) //1 hour from now on
   }, process.env.JWT_SECRET);
-  const refreshToken = await rTokenDB.createToken(email);
+
+  const refreshToken = jwt.sign({
+    email: email,
+    exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
+  }, process.env.JWT_REFRESH_SECRET);
+
+  try {
+    await RefreshToken.create({
+      refreshToken: refreshToken,
+      email: email
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({message: "couldn't register!"});
+  }
 
   res.send({
     message: `${username} sucessfull registred`,
