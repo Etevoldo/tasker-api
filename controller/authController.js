@@ -102,7 +102,7 @@ async function login(req, res) {
   });
 }
 
-async function refreshToken(req, res) {
+async function refreshTokenRenew(req, res) {
   const refreshToken = req.body.refreshToken;
 
   if (!refreshToken) {
@@ -110,35 +110,56 @@ async function refreshToken(req, res) {
   }
 
   //get token info in de db
-  let refreshTokenContents = (await rTokenDB.getToken(refreshToken));
-  if (!refreshTokenContents) { //if rtoken doesn't exists in db
+  const refreshTokenIns = await RefreshToken.findByPk(refreshToken)
+  if (!refreshTokenIns) { //if rtoken doesn't exists in db
     return res.status(403).send({message: 'Token not in database!'});
   }
 
   //decode token and get exp date
   const decodedToken = jwt.verify(
-    refreshToken,
+    refreshTokenIns.refreshToken, // token itself
     process.env.JWT_REFRESH_SECRET,
     { ignoreExpiration: true }
   );
 
   if (decodedToken.exp <= (Date.now() / 1000)) {
-    await rTokenDB.delFamily(refreshTokenContents.user);
+    RefreshToken.destroy({
+      where: { email_user: refreshTokenIns.email_user }
+    });
     return res.status(403).send({message: 'Token expired, login again'});
   }
-  if (refreshTokenContents.used) {
-    await rTokenDB.delFamily(refreshTokenContents.user);
+
+  if (refreshTokenIns.used) {
+    RefreshToken.destroy({
+      where: { email_user: refreshTokenIns.email_user }
+    });
     return res.status(403).send({message: 'Token reused, login again'});
   }
 
   //if everything is ok
   const newAcessToken = jwt.sign({
-    email: refreshTokenContents.user,
+    email: refreshTokenIns.email_user,
     exp: Math.floor(Date.now() / 1000) + (60) //1 minute
   }, process.env.JWT_SECRET);
 
-  const newRefreshToken = await rTokenDB.createToken(refreshTokenContents.user);
-  await rTokenDB.markUsed(refreshToken);
+  const newRefreshToken = jwt.sign({
+    email: refreshTokenIns.email_user,
+    exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
+  }, process.env.JWT_REFRESH_SECRET);
+
+  const newRefreshTokenIns = RefreshToken.build({
+    refreshToken: newRefreshToken,
+    email_user: refreshTokenIns.email_user
+  });
+
+  try {
+    refreshTokenIns.used = true;
+    await refreshTokenIns.save();
+    await newRefreshTokenIns.save(); // saving to the databse
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({message: "fixthis"});
+  }
 
   res.status(200).send({
     token: newAcessToken,
@@ -146,4 +167,4 @@ async function refreshToken(req, res) {
   });
 }
 
-module.exports = {register, login, refreshToken};
+module.exports = {register, login, refreshTokenRenew};
