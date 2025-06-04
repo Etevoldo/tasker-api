@@ -57,20 +57,43 @@ async function register(req, res) {
 async function login(req, res) {
   const { email, password } = req.body;
 
-  const result = await db.queryUser(email);
+  //const result = await db.queryUser(email);
+  try {
+    const user = await User.findOne({ where: { email: email } });
 
-  if (result.length !== 1) { // not found
-    return res.status(401).send({message: "E-mail address not found"});
-  }
-  if (!bcrypt.compareSync(password, result[0].password)) {
-    return res.status(401).send({message: "Wrong password!"});
+    if (user === null) {
+      return res.status(401).send({message: "E-mail address not found"});
+    }
+    if (!bcrypt.compareSync(password, user.password)) {
+      return res.status(401).send({message: "Wrong password!"});
+    }
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({message: "Unknown error"});
   }
 
   const token = jwt.sign({
     email: email,
     exp: Math.floor(Date.now() / 1000) + (60) //1 minute from now on
   }, process.env.JWT_SECRET);
-  const refreshToken = await rTokenDB.createToken(email);
+
+  const refreshToken = jwt.sign({
+    email: email,
+    exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
+  }, process.env.JWT_REFRESH_SECRET); // creating the refreshToken
+
+  const refreshTokenIns = RefreshToken.build({
+    refreshToken: refreshToken,
+    email_user: email
+  });
+
+  try {
+    await refreshTokenIns.save(); // saving to the databse
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({message: "fixthis"});
+  }
 
   res.send({
     message: `${email} sucessfull logged in`,
