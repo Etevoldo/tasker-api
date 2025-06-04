@@ -19,8 +19,12 @@ async function register(req, res) {
   try {
     await User.create(userData);
   } catch (error) {
-    console.error(error)
-    return res.status(500).send({message: "couldn't register!"});
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      return res.status(400).send({ message: "This email already exists" });
+    }
+    else {
+      return res.status(500).send({ message: "Coundn't register" });
+    }
   }
 
   const token = jwt.sign({
