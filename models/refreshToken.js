@@ -5,13 +5,16 @@ module.exports = (sequelize) => {
   class RefreshToken extends Model {}
   RefreshToken.init(
     {
-      token: {
+      refreshToken: {
         type: DataTypes.STRING,
         allowNull: false,
         primaryKey: true,
       },
-      id_user: DataTypes.INTEGER,
-      used: DataTypes.BOOLEAN,
+      email_user: DataTypes.STRING,
+      used: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: 0 // false
+      }
     },
     {
       sequelize,
