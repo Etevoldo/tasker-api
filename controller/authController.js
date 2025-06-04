@@ -11,7 +11,7 @@ async function register(req, res) {
   const { username, email, password } = req.body;
 
   const userData = {
-    username: username,
+    name: username,
     email: email,
     password: await bcrypt.hash(password, 8)
   };
@@ -40,7 +40,7 @@ async function register(req, res) {
   try {
     await RefreshToken.create({
       refreshToken: refreshToken,
-      email: email
+      email_user: email
     });
   } catch (error) {
     console.error(error);
