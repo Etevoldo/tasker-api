@@ -1,27 +1,56 @@
 'use strict';
 
-const db = require('./dbController');
+const db = require('../models');
+const Task = db.Task;
+const User = db.User;
 
 async function addTask(req, res) {
-  if (!isRightFormat(req.body)) { 
+  if (!isRightFormat(req.body)) {
     res.status(400).send({message : "Body in a wrong format!"});
   }
+  try {
+    const user = await User.findOne({ 
+      where: {
+        email: req.email
+      },
+      attributes: ['id']
+    });
 
-  const idResult = await db.queryUser(req.email, ['id']);
-  const idUser = idResult[0].id;
+    if (user === null) {
+      return res.status(401).send({ message: "You're disconnected" });
+    }
+    const task = await Task.create({
+      title: req.body.title,
+      description: req.body.description,
+      id_user: user.id
+    });
 
-  const task = {
-    title: req.body.title,
-    description: req.body.description
-  };
+    res.status(200).send({
+      title: task.title,
+      description: task.description,
+      isCompleted: task.isCompleted
+    });
 
-  const result = await db.addTask(task, idUser);
-
-  if (result === -1) {
-    return res.status(500).send({message: "Couldn't add task"});
+  } catch(error) {
+    console.error(error);
+    return res.status(500).send({ message: "Couldn't add task" });
   }
 
-  res.status(200).send({ id: result.insertId, ...task });
+
+  // const idResult = await db.queryUser(req.email, ['id']);
+  // const idUser = idResult[0].id;
+
+  // const task = {
+    // title: req.body.title,
+    // description: req.body.description
+  // };
+
+  // const result = await db.addTask(task, idUser);
+
+  // if (result === -1) {
+    // return res.status(500).send({message: "Couldn't add task"});
+  // }
+
 }
 
 async function updateTask(req, res) {
