@@ -27,15 +27,7 @@ async function register(req, res) {
     }
   }
 
-  const token = jwt.sign({
-    email: email,
-    exp: Math.floor(Date.now() / 1000) + (60 * 60) //1 hour from now on
-  }, process.env.JWT_SECRET);
-
-  const refreshToken = jwt.sign({
-    email: email,
-    exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
-  }, process.env.JWT_REFRESH_SECRET);
+  const { token, refreshToken } = createTokenPair(email);
 
   try {
     await RefreshToken.create({
@@ -73,15 +65,7 @@ async function login(req, res) {
     return res.status(500).send({message: "Unknown error"});
   }
 
-  const token = jwt.sign({
-    email: email,
-    exp: Math.floor(Date.now() / 1000) + (60) //1 minute from now on
-  }, process.env.JWT_SECRET);
-
-  const refreshToken = jwt.sign({
-    email: email,
-    exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
-  }, process.env.JWT_REFRESH_SECRET); // creating the refreshToken
+  const { token, refreshToken } = createTokenPair(email);
 
   const refreshTokenIns = RefreshToken.build({
     refreshToken: refreshToken,
@@ -137,15 +121,8 @@ async function refreshTokenRenew(req, res) {
   }
 
   //if everything is ok
-  const newAcessToken = jwt.sign({
-    email: refreshTokenIns.email_user,
-    exp: Math.floor(Date.now() / 1000) + (60) //1 minute
-  }, process.env.JWT_SECRET);
-
-  const newRefreshToken = jwt.sign({
-    email: refreshTokenIns.email_user,
-    exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
-  }, process.env.JWT_REFRESH_SECRET);
+  const { token: newAcessToken, refreshToken: newRefreshToken}
+      = createTokenPair(refreshTokenIns.email_user)
 
   const newRefreshTokenIns = RefreshToken.build({
     refreshToken: newRefreshToken,
@@ -165,6 +142,20 @@ async function refreshTokenRenew(req, res) {
     token: newAcessToken,
     refreshToken: newRefreshToken
   });
+}
+
+function createTokenPair(email) {
+  const token = jwt.sign({
+    email: email,
+    exp: Math.floor(Date.now() / 1000) + (60 * 60) //1 hour from now on
+  }, process.env.JWT_SECRET);
+
+  const refreshToken = jwt.sign({
+    email: email,
+    exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
+  }, process.env.JWT_REFRESH_SECRET);
+
+  return { token: token, refreshToken: refreshToken }
 }
 
 module.exports = {register, login, refreshTokenRenew};
