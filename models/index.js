@@ -1,4 +1,3 @@
-
 'use strict';
 
 require('dotenv').config();
@@ -26,6 +25,5 @@ db.RefreshToken = require('./refreshToken.js')(sequelize);
 
 db.User.hasMany(db.Task, { foreignKey: 'id_user'});
 db.Task.belongsTo(db.User, { foreignKey: 'id_user' });
-
 
 module.exports = db;

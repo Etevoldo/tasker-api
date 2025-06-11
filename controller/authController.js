@@ -3,7 +3,6 @@
 const db = require('../models');
 const User = db.User;
 const RefreshToken = db.RefreshToken;
-const rTokenDB = require('./refreshTokenController.js');
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 
