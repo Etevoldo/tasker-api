@@ -68,10 +68,15 @@ async function updateTask(req, res) {
 }
 
 async function deleteTask(req, res) {
-  const result = await db.deleteTask(req.params.id);
-
-  if (result === -1) {
-    return res.status(500).send({message: "Couldn't delete task"});
+  try {
+    await Task.destroy({
+      where: {
+        id: req.params.id
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ message: 'Couldn\'t delete task' });
   }
 
   res.status(204).send();
