@@ -1,6 +1,5 @@
 'use strict';
 
-//const db = require('../controller/dbController');
 const db = require('../models');
 const jwt = require('jsonwebtoken');
 
@@ -40,16 +39,43 @@ async function verifyAuth(req, res, next) {
 }
 
 async function verifyTaskPerm(req, res, next) {
-  const id_req = req.params.id;
+  const Task = db.Task;
+  const User = db.User;
+  const task_id = req.params.id;
 
-  const task = await db.queryTask(id_req, ['id_user']);
-  if (task.length === 0) return res.status(404).send(); // task doesn't exist
+  try {
+    const task = await Task.findByPk(task_id);
 
-  const user = await db.queryUser(req.email, ['id']);
-  if (task[0].id_user !== user[0].id) {
-    return res.status(403).send({message: "Forbidden!"});
+    if (task === null) {
+      return res.status(404).send({ message: "This task doesn't exist" });
+    }
+
+    const user = await User.findOne({
+      where: {
+        email: req.email
+      },
+      attributes: ['id']
+    })
+    if (task.id_user !== user.id) {
+      // change later to a fake 404, this condition actually means the
+      // user is trying to update a task they don't have permissions
+      return res.status(403).send({ message: "You don't have this task" });
+      // return res.status(404).send({ message: "Task doesn't exist" });
+    }
+    req.id_user = task.id_user;
+  } catch (error) {
+    console.error("Coundn't verify task permissions");
+    return res.status(500).send();
   }
-  req.idUser = task[0].id_user;
+
+  // const task = await db.queryTask(id_req, ['id_user']);
+  // if (task.length === 0) return res.status(404).send(); // task doesn't exist
+
+  // const user = await db.queryUser(req.email, ['id']);
+  // if (task[0].id_user !== user[0].id) {
+  //   return res.status(403).send({message: "Forbidden!"});
+  // }
+  // req.idUser = task[0].id_user;
   next();
 }
 
