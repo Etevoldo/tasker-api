@@ -13,6 +13,10 @@ module.exports = (sequelize) => {
       },
       title: DataTypes.STRING,
       description: DataTypes.STRING,
+      isCompleted: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: 0 // false
+      }
     },
     {
       sequelize,
