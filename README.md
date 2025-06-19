@@ -1,7 +1,7 @@
 # What is this
 
-Another [roadmap.sh](https://roadmap.sh/projects/todo-list-api) project, this one is a RESTful API, express, using mariaDB for user, task, and refresh token data and redis for rate limiting.
-The instructions on how to use it are pretty much explained there
+Another [roadmap.sh project](https://roadmap.sh/projects/todo-list-api), this one is a RESTful API, express, using mariaDB for user, task, and refresh token data and redis for rate limiting.
+The instructions on how to use it are pretty much explained on the roadmap website
 
 # How to run
 
@@ -12,11 +12,9 @@ The instructions on how to use it are pretty much explained there
 ```console
 npm i
 ```
-3. [install XAMPP](https://www.apachefriends.org/download.html) or use your mysql/mariadb instalation
+3. Have a mariadb database server running as wall as a redis-server instance
 
-4. import the table from the `dbExport.sql` file
-
-5. and create a `.env` file on the root folder with the following template:
+4. and create a `.env` file on the root folder with the following template:
 ```env
 JWT_SECRET=<your jwt secret>
 JWT_REFRESH_SECRET=<your refresh token secret>
@@ -35,10 +33,16 @@ npm start
 ---
 
 Bonus features:
-- [x] Refresh Token mechanism
+- [x] Refresh Token mechanism (with JWT)
 - [x] Automatic Refresh token reuse detection
-- [x] Rate limiting
+- [x] Rate limiting with REDIS
 - [ ] unit testing
 - [ ] task filtering and sorting
 
-Complete!
+# Built with:
+- express (http client)
+- sequelize (ORM)
+- eslint (linting)
+- redis (rate limiting)
+- bcryptjs (password hashing)
+- lots of other stuff
