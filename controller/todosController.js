@@ -38,24 +38,33 @@ async function addTask(req, res) {
 }
 
 async function updateTask(req, res) {
-
   const task = {
     title: req.body.title,
-    description: req.body.description
+    description: req.body.description,
+    isCompleted: req.body.isCompleted
   };
 
   if (!isRightFormat(task)) {
     return res.status(400).send({message : "Body in a wrong format!"});
   }
+  try {
+    const taskIns = await Task.findByPk(req.params.id);
 
-  const result = await db.modifyTask(task, req.params.id ,req.idUser);
+    taskIns.title = req.body.title;
+    taskIns.description = req.body.description;
+    taskIns.isCompleted = req.body.isCompleted;
+    taskIns.save();
 
-  if (result === -1) {
-    return res.status(500).send({message: "Couldn't modify task"});
+    res.status(200).send({
+      id: taskIns.id,
+      title: taskIns.title,
+      description: taskIns.description,
+      isCompleted: taskIns.isCompleted
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({ message: "Couldn't update task" });
   }
-
-  // could query for the just inserted Task, but it would be a waste
-  res.status(200).send({ id: parseInt(req.params.id), ...task });
 }
 
 async function deleteTask(req, res) {
