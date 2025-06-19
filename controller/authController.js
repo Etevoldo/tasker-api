@@ -3,7 +3,7 @@
 const db = require('../models');
 const User = db.User;
 const RefreshToken = db.RefreshToken;
-const bcrypt = require("bcryptjs");
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 async function register(req, res) {
@@ -19,10 +19,10 @@ async function register(req, res) {
     await User.create(userData);
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
-      return res.status(400).send({ message: "This email already exists" });
+      return res.status(400).send({ message: 'This email already exists' });
     }
     else {
-      return res.status(500).send({ message: "Coundn't register" });
+      return res.status(500).send({ message: 'Coundn\'t register' });
     }
   }
 
@@ -35,7 +35,7 @@ async function register(req, res) {
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).send({message: "couldn't register!"});
+    return res.status(500).send({ message: 'couldn\'t register!' });
   }
 
   res.send({
@@ -48,20 +48,19 @@ async function register(req, res) {
 async function login(req, res) {
   const { email, password } = req.body;
 
-  //const result = await db.queryUser(email);
   try {
     const user = await User.findOne({ where: { email: email } });
 
     if (user === null) {
-      return res.status(401).send({message: "E-mail address not found"});
+      return res.status(401).send({ message: 'E-mail address not found' });
     }
     if (!bcrypt.compareSync(password, user.password)) {
-      return res.status(401).send({message: "Wrong password!"});
+      return res.status(401).send({ message: 'Wrong password!' });
     }
 
   } catch (error) {
     console.log(error);
-    return res.status(500).send({message: "Unknown error"});
+    return res.status(500).send({ message: 'Unknown error' });
   }
 
   const { token, refreshToken } = createTokenPair(email);
@@ -72,10 +71,11 @@ async function login(req, res) {
   });
 
   try {
-    await refreshTokenIns.save(); // saving to the databse
+    // saving to the databse
+    await refreshTokenIns.save();
   } catch (error) {
     console.log(error);
-    return res.status(500).send({message: "fixthis"});
+    return res.status(500).send({ message: 'fixthis' });
   }
 
   res.send({
@@ -89,16 +89,16 @@ async function refreshTokenRenew(req, res) {
   const refreshToken = req.body.refreshToken;
 
   if (!refreshToken) {
-    return res.status(403).send({message: 'Refresh Token Required!'});
+    return res.status(403).send({ message: 'Refresh Token Required!' });
   }
 
-  //get token info in de db
-  const refreshTokenIns = await RefreshToken.findByPk(refreshToken)
-  if (!refreshTokenIns) { //if rtoken doesn't exists in db
-    return res.status(403).send({message: 'Token not in database!'});
+  // get token info in de db
+  const refreshTokenIns = await RefreshToken.findByPk(refreshToken);
+  if (!refreshTokenIns) { // if rtoken doesn't exists in db
+    return res.status(403).send({ message: 'Token not in database!' });
   }
 
-  //decode token and get exp date
+  // decode token and get exp date
   const decodedToken = jwt.verify(
     refreshTokenIns.refreshToken, // token itself
     process.env.JWT_REFRESH_SECRET,
@@ -109,19 +109,19 @@ async function refreshTokenRenew(req, res) {
     RefreshToken.destroy({
       where: { email_user: refreshTokenIns.email_user }
     });
-    return res.status(403).send({message: 'Token expired, login again'});
+    return res.status(403).send({ message: 'Token expired, login again' });
   }
 
   if (refreshTokenIns.used) {
     RefreshToken.destroy({
       where: { email_user: refreshTokenIns.email_user }
     });
-    return res.status(403).send({message: 'Token reused, login again'});
+    return res.status(403).send({ message: 'Token reused, login again' });
   }
 
-  //if everything is ok
-  const { token: newAcessToken, refreshToken: newRefreshToken}
-      = createTokenPair(refreshTokenIns.email_user)
+  // if everything is ok
+  const { token: newAcessToken, refreshToken: newRefreshToken }
+      = createTokenPair(refreshTokenIns.email_user);
 
   const newRefreshTokenIns = RefreshToken.build({
     refreshToken: newRefreshToken,
@@ -134,7 +134,7 @@ async function refreshTokenRenew(req, res) {
     await newRefreshTokenIns.save(); // saving to the databse
   } catch (error) {
     console.log(error);
-    return res.status(500).send({message: "fixthis"});
+    return res.status(500).send({ message: 'fixthis' });
   }
 
   res.status(200).send({
@@ -146,7 +146,7 @@ async function refreshTokenRenew(req, res) {
 function createTokenPair(email) {
   const token = jwt.sign({
     email: email,
-    exp: Math.floor(Date.now() / 1000) + (60 * 60) //1 hour from now on
+    exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour from now on
   }, process.env.JWT_SECRET);
 
   const refreshToken = jwt.sign({
@@ -154,7 +154,7 @@ function createTokenPair(email) {
     exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour
   }, process.env.JWT_REFRESH_SECRET);
 
-  return { token: token, refreshToken: refreshToken }
+  return { token: token, refreshToken: refreshToken };
 }
 
-module.exports = {register, login, refreshTokenRenew};
+module.exports = { register, login, refreshTokenRenew };

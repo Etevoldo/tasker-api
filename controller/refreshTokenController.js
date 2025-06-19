@@ -24,7 +24,7 @@ async function createToken(email) {
     conn.query(query, [rToken, false, email]);
 
     return rToken;
-  } catch(err) {
+  } catch (err) {
     console.error(err);
   }
 }
@@ -39,12 +39,12 @@ async function getToken(rToken) {
     const tokenTouple = (await conn.query(query, [rToken]))[0];
 
     return tokenTouple;
-  } catch(err) {
+  } catch (err) {
     console.error(err);
   }
 }
 
-//automatic reusedection
+// automatic reusedection
 async function delFamily(user) {
   const conn = await mariadb.createConnection(connection);
   try {
@@ -52,7 +52,7 @@ async function delFamily(user) {
       'DELETE FROM refreshTokens WHERE user = ?';
 
     await conn.query(query, [user]);
-  } catch(err) {
+  } catch (err) {
     console.error(err);
   }
 }
@@ -64,9 +64,9 @@ async function markUsed(rToken) {
       'UPDATE refreshTokens SET used = true WHERE token = ?';
 
     await conn.query(query, [rToken]);
-  } catch(err) {
+  } catch (err) {
     console.error(err);
   }
 }
-//TODO implement mark used function
-module.exports = {createToken, getToken, delFamily, markUsed};
+// TODO implement mark used function
+module.exports = { createToken, getToken, delFamily, markUsed };

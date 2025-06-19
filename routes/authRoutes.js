@@ -2,7 +2,7 @@
 
 const express = require('express');
 const controller = require('../controller/authController.js');
-const authVerify = require('../middleware/authVerify.js');
+const authVerify = require('../middleware/authVerify.js').default;
 
 const router = express.Router();
 

@@ -6,10 +6,10 @@ const User = db.User;
 
 async function addTask(req, res) {
   if (!isRightFormat(req.body)) {
-    res.status(400).send({message : "Body in a wrong format!"});
+    res.status(400).send({ message : 'Body in a wrong format!' });
   }
   try {
-    const user = await User.findOne({ 
+    const user = await User.findOne({
       where: {
         email: req.email
       },
@@ -17,7 +17,7 @@ async function addTask(req, res) {
     });
 
     if (user === null) {
-      return res.status(401).send({ message: "You're disconnected" });
+      return res.status(401).send({ message: 'You\'re disconnected' });
     }
     const task = await Task.create({
       title: req.body.title,
@@ -31,9 +31,9 @@ async function addTask(req, res) {
       isCompleted: task.isCompleted
     });
 
-  } catch(error) {
+  } catch (error) {
     console.error(error);
-    return res.status(500).send({ message: "Couldn't add task" });
+    return res.status(500).send({ message: 'Couldn\'t add task' });
   }
 }
 
@@ -45,7 +45,7 @@ async function updateTask(req, res) {
   };
 
   if (!isRightFormat(task)) {
-    return res.status(400).send({message : "Body in a wrong format!"});
+    return res.status(400).send({ message : 'Body in a wrong format!' });
   }
   try {
     const taskIns = await Task.findByPk(req.params.id);
@@ -63,7 +63,7 @@ async function updateTask(req, res) {
     });
   } catch (error) {
     console.log(error);
-    return res.status(500).send({ message: "Couldn't update task" });
+    return res.status(500).send({ message: 'Couldn\'t update task' });
   }
 }
 
@@ -92,12 +92,12 @@ async function getTasks(req, res) {
     });
 
     if (user === null) {
-      return res.status(401).send({ message: "You're disconnected" });
+      return res.status(401).send({ message: 'You\'re disconnected' });
     }
 
     // get pagination info
     const sParams = new URLSearchParams(req.url.split('?')[1]);
-    const page  = parseInt(sParams.get('page'));
+    const page = parseInt(sParams.get('page'));
     const limit = parseInt(sParams.get('limit'));
 
     // lazy loading the tasks
@@ -109,9 +109,9 @@ async function getTasks(req, res) {
 
 
     res.status(200).send(paginate(tasks, page, limit));
-  } catch(error) {
+  } catch (error) {
     console.error(error);
-    return res.status(500).send({ message: "Couldn't get tasks" });
+    return res.status(500).send({ message: 'Couldn\'t get tasks' });
   }
 }
 // might exclude this since sequelize has built in pagination
@@ -134,11 +134,11 @@ function paginate(data, page, limit) {
 }
 
 function isRightFormat(body) {
-  //check if is right types
+  // check if is right types
   if ((typeof body.title) !== 'string') return false;
   if ((typeof body.description) !== 'string') return false;
 
-  //check if title is empty
+  // check if title is empty
   if (!body.title.length) return false;
   // could prevent empty description but that would be annoying
   return true;

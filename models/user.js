@@ -25,4 +25,4 @@ module.exports = (sequelize) => {
   );
   console.log(User === sequelize.models.User);
   return User;
-}
+};
