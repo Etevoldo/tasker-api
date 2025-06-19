@@ -35,22 +35,6 @@ async function addTask(req, res) {
     console.error(error);
     return res.status(500).send({ message: "Couldn't add task" });
   }
-
-
-  // const idResult = await db.queryUser(req.email, ['id']);
-  // const idUser = idResult[0].id;
-
-  // const task = {
-    // title: req.body.title,
-    // description: req.body.description
-  // };
-
-  // const result = await db.addTask(task, idUser);
-
-  // if (result === -1) {
-    // return res.status(500).send({message: "Couldn't add task"});
-  // }
-
 }
 
 async function updateTask(req, res) {
@@ -85,18 +69,38 @@ async function deleteTask(req, res) {
 }
 
 async function getTasks(req, res) {
-  const idResult = await db.queryUser(req.email, ['id']);
-  const userId = idResult[0].id;
-  const tasks =
-      await db.queryTasksByUserId(userId, ['id', 'title', 'description']);
+  try {
+    const user = await User.findOne({
+      where: {
+        email: req.email
+      },
+      attributes: ['id']
+    });
 
-  const sParams = new URLSearchParams(req.url.split('?')[1]);
-  const page  = parseInt(sParams.get('page'));
-  const limit = parseInt(sParams.get('limit'));
+    if (user === null) {
+      return res.status(401).send({ message: "You're disconnected" });
+    }
 
-  res.status(200).send(paginate(tasks, page, limit));
+    // get pagination info
+    const sParams = new URLSearchParams(req.url.split('?')[1]);
+    const page  = parseInt(sParams.get('page'));
+    const limit = parseInt(sParams.get('limit'));
+
+    // lazy loading the tasks
+    const tasks = await user.getTasks({
+      attributes: { exclude: ['id_user'] },
+      limit: limit,
+      offset: (page - 1) * limit
+    });
+
+
+    res.status(200).send(paginate(tasks, page, limit));
+  } catch(error) {
+    console.error(error);
+    return res.status(500).send({ message: "Couldn't get tasks" });
+  }
 }
-
+// might exclude this since sequelize has built in pagination
 function paginate(data, page, limit) {
   const formatedPage = {
     data: [],
@@ -109,7 +113,7 @@ function paginate(data, page, limit) {
   const upperLimit = bottomStart + limit;
 
   for (let i = bottomStart; (i < upperLimit) && data[i]; i++) {
-    formatedPage.data.push(data[i]);
+    formatedPage.data.push(data[i].toJSON());
   }
 
   return formatedPage;
