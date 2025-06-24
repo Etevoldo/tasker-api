@@ -107,27 +107,30 @@ async function getTasks(req, res) {
       offset: (page - 1) * limit
     });
 
+    const totalNumberOfTasks = await Task.count({
+      where: { id_user: user.id }
+    });
 
-    res.status(200).send(paginate(tasks, page, limit));
+    res.status(200).send(
+      formatPaginate(tasks, page, limit, totalNumberOfTasks)
+    );
   } catch (error) {
     console.error(error);
     return res.status(500).send({ message: 'Couldn\'t get tasks' });
   }
 }
 // might exclude this since sequelize has built in pagination
-function paginate(data, page, limit) {
+function formatPaginate(rows, page, limit, total) {
   const formatedPage = {
     data: [],
     page: page,
     limit: limit,
-    total: data.length
+    total: total
   };
 
-  const bottomStart = (page - 1) * limit;
-  const upperLimit = bottomStart + limit;
-
-  for (let i = bottomStart; (i < upperLimit) && data[i]; i++) {
-    formatedPage.data.push(data[i].toJSON());
+  for (const row of rows) {
+    delete row.id_user;
+    formatedPage.data.push(row.toJSON());
   }
 
   return formatedPage;
